@@ -83,6 +83,7 @@ services:
 
    clickhouse:
      image: yandex/clickhouse-server:19.17.6.36
+#     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
      hostname: clickhouse
      container_name: clickhouse
      environment:
@@ -124,7 +125,7 @@ services:
       - 5432:5432
 
    columbus:
-    image: rbkmoney/columbus:88be0cbccde15c7d4c88403d495f8d564f826160
+    image: ghcr.io/valitydev/columbus:sha-13b6ac4
     hostname: columbus
     container_name: columbus
     environment:
@@ -136,7 +137,7 @@ services:
       - 8990:8022
 
    wblist:
-     image: rbkmoney/wb-list-manager:9676d131d4b6c2d90c0a230c173c07f1de30f298
+     image: ghcr.io/valitydev/wb-list-manager:sha-a790a3b
      hostname: wblist
      container_name: wblist
      environment:
@@ -177,7 +178,7 @@ services:
        - ./log-java:/opt/trusted-tokens-manager/tmp
 
    fraudbusters:
-     image: rbkmoney/fraudbusters:6b8d79795763fff52d7f8c85651380727417693b
+     image: ghcr.io/valitydev/fraudbusters:sha-f0c8357
      hostname: fraudbusters
      container_name: fraudbusters
      environment:
@@ -210,7 +211,7 @@ services:
        - ./card-tokens:/opt/fraudbusters/card-tokens
 
    fraudbusters-api:
-     image: rbkmoney/fraudbusters-api:1d3a6d45cb097b94b8248cf66f629a2f28249306
+     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
      hostname: fraudbusters-api
      container_name: fraudbusters-api
      environment:
@@ -242,7 +243,7 @@ services:
      restart: unless-stopped
 
    fb-management:
-     image: rbkmoney/fraudbusters-management:1613785de7c551de4ab89ad74c18e116c4957a2c
+     image: ghcr.io/valitydev/fraudbusters-management:sha-7a393ea
      hostname: fb-management
      container_name: fb-management
      environment:
@@ -263,7 +264,7 @@ services:
        keycloak.enabled: "true"
        keycloak.realm: "fraudbusters-realm"
        keycloak.resource: "fraudbusters-app"
-       keycloak.auth-server-url: "http://keyclock:8080/auth"
+       keycloak.auth-server-url: "http://keycloak:8080/auth"
        cors.allowed-origins: "*"
      ports:
        - 8085:8080
@@ -278,7 +279,7 @@ services:
        - ./log-java:/opt/fraudbusters-management/tmp
 
    fb-notificator:
-     image: rbkmoney/fraudbusters-notificator:baf2332c3ca6d0860e30dacc10f7c9c60a726700
+     image: ghcr.io/valitydev/fraudbusters-notificator:sha-2574ac0
      hostname: fb-notificator
      container_name: fb-notificator
      environment:
@@ -311,7 +312,7 @@ services:
      restart: unless-stopped
 
    fb-warehouse:
-     image: rbkmoney/fraudbusters-warehouse:69ddadd89f84ec2afddc59f1c6074524367faf3e
+     image: ghcr.io/valitydev/fraudbusters-warehouse:sha-251429b
      hostname: fb-warehouse
      container_name: fb-warehouse
      environment:
@@ -329,9 +330,11 @@ services:
        - ./log-java:/opt/fraudbusters-warehouse/tmp
 
    fraudbusters-ui:
-     image: rbkmoney/fraudbusters-ui:f0d4b45c0726f6b45f8ad42b77fb7f7750bd86b1
+     image: ghcr.io/valitydev/fraudbusters-ui:sha-5661f6f
      hostname: fraudbusters-ui
      container_name: fraudbusters-ui
+     environment:
+       platform: linux/amd64
      ports:
        - 8989:8080
      depends_on:
@@ -341,10 +344,10 @@ services:
        - ./fraudbusters-ui/appConfig.json:/usr/share/nginx/html/assets/appConfig.json
        - ./fraudbusters-ui/authConfig.json:/usr/share/nginx/html/assets/authConfig.json
 
-   keyclock:
-      image: rbkmoney/keycloak:aae54b7dbcfdd28056634e66df27beab78aaf144
-      hostname: keyclock
-      container_name: keyclock
+   keycloak:
+      image: docker.io/wizzn/keycloak:14
+      hostname: keycloak
+      container_name: keycloak
       ports:
         - 8080:8080
         - 8443:8443
