@@ -354,6 +354,8 @@ services:
       environment:
         KEYCLOAK_USER: "admin"
         KEYCLOAK_PASSWORD: "admin"
+      volumes:
+        - ./keycloak/themes/fraudbusters:/opt/jboss/keycloak/themes/fraudbusters
 
 networks:
   default:
