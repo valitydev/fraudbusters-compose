@@ -1301,7 +1301,7 @@
     "strictTransportSecurity": "max-age=31536000; includeSubDomains"
   },
   "smtpServer": {},
-  "loginTheme": "keycloak",
+  "loginTheme": "fraudbusters",
   "eventsEnabled": false,
   "eventsListeners": [
     "jboss-logging"
