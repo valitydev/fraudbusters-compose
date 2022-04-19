@@ -94,6 +94,7 @@ services:
        - 8123:8123
      volumes:
        - ./clickhouse/data:/var/lib/clickhouse
+       - ./clickhouse/log:/var/log
        - ./clickhouse/docker-entrypoint-initdb.d/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
 
    grafana:
@@ -177,6 +178,23 @@ services:
      volumes:
        - ./log-java:/opt/trusted-tokens-manager/tmp
 
+   fraudbusters-api:
+     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
+     hostname: fraudbusters-api
+     container_name: fraudbusters-api
+     environment:
+       management.security.enabled: 'false'
+       logging.config: "tmp/logback-test.xml"
+       fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
+       fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
+       server.port: "8080"
+     depends_on:
+       - fraudbusters
+     ports:
+       - 9999:8080
+     volumes:
+       - ./log-java:/opt/fraudbusters-api/tmp
+
    fraudbusters:
      image: ghcr.io/valitydev/fraudbusters:sha-f0c8357
      hostname: fraudbusters
@@ -210,23 +228,6 @@ services:
        - ./log-java:/opt/fraudbusters/tmp
        - ./card-tokens:/opt/fraudbusters/card-tokens
 
-   fraudbusters-api:
-     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
-     hostname: fraudbusters-api
-     container_name: fraudbusters-api
-     environment:
-       management.security.enabled: 'false'
-       logging.config: "tmp/logback-test.xml"
-       fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
-       fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
-       server.port: "8080"
-     depends_on:
-       - fraudbusters
-     ports:
-       - 9999:8080
-     volumes:
-       - ./log-java:/opt/fraudbusters-api/tmp
-
    postgres-fb:
      container_name: postgres_container
      hostname: postgres-fb
@@ -243,7 +244,7 @@ services:
      restart: unless-stopped
 
    fb-management:
-     image: ghcr.io/valitydev/fraudbusters-management:sha-7a393ea
+     image: ghcr.io/valitydev/fraudbusters-management:sha-cc49e98
      hostname: fb-management
      container_name: fb-management
      environment:
@@ -257,6 +258,7 @@ services:
        management.metrics.binders.jvm.enabled: 'false'
        service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
        service.historical.url: 'http://fraudbusters:8022/historical_data/v1/'
+       service.historical.networkTimeout: 30000
        service.notification.url: 'http://fb-notificator:8022/notification/v1'
        service.notification-channel.url: 'http://fb-notificator:8022/notification-channel/v1'
        service.notification-template.url: 'http://fb-notificator:8022/notification-template/v1'

@@ -20,7 +20,7 @@ cat <<EOT >> /etc/clickhouse-server/users.d/user.xml
 </yandex>
 EOT
 
-clickhouse client -n <<-EOSQL
+clickhouse client -n -u ${CLICKHOUSE_USER} --password ${CLICKHOUSE_PASSWORD} <<-EOSQL
     CREATE DATABASE IF NOT EXISTS fraud;
 
     DROP TABLE IF EXISTS fraud.events_unique;
@@ -54,53 +54,17 @@ clickhouse client -n <<-EOSQL
     ORDER BY (eventTimeHour, partyId, shopId, bin, resultStatus, cardToken, email, ip, fingerprint)
     TTL timestamp + INTERVAL 3 MONTH;
 
-    DROP TABLE IF EXISTS fraud.events_p_to_p;
-
-    create table fraud.events_p_to_p (
-      timestamp Date,
-      eventTime UInt64,
-      eventTimeHour UInt64,
-
-      identityId String,
-      transferId String,
-
-      ip String,
-      email String,
-      bin String,
-      fingerprint String,
-
-      amount UInt64,
-      currency String,
-
-      country String,
-      bankCountry String,
-      maskedPan String,
-      bankName String,
-      cardTokenFrom String,
-      cardTokenTo String,
-
-      resultStatus String,
-      checkedRule String,
-      checkedTemplate String
-    ) ENGINE = MergeTree()
-    PARTITION BY toYYYYMM(timestamp)
-    ORDER BY (eventTimeHour, identityId, cardTokenFrom, cardTokenTo, bin, fingerprint, currency);
-
-    CREATE DATABASE IF NOT EXISTS fraud;
-
-    CREATE DATABASE IF NOT EXISTS fraud;
-
     DROP TABLE IF EXISTS fraud.fraud_payment;
 
     create table fraud.fraud_payment (
 
-    timestamp Date,
-      id String,
-      eventTime UInt64,
-      eventTimeHour UInt64,
+        timestamp Date,
+        id String,
+        eventTime UInt64,
+        eventTimeHour UInt64,
 
-      fraudType String,
-      comment String,
+        fraudType String,
+        comment String,
 
         email                 String,
         ip                    String,
@@ -129,44 +93,6 @@ clickhouse client -n <<-EOSQL
     ) ENGINE = MergeTree()
     PARTITION BY toYYYYMM (timestamp)
     ORDER BY (eventTimeHour, partyId, shopId, paymentTool, status, currency, providerId, fingerprint, cardToken, eventTime, id);
-
-    DROP TABLE IF EXISTS fraud.payment;
-
-    create table fraud.payment
-    (
-        timestamp             Date,
-        eventTime             UInt64,
-        eventTimeHour         UInt64,
-
-        id                    String,
-
-        email                 String,
-        ip                    String,
-        fingerprint           String,
-
-        bin                   String,
-        maskedPan             String,
-        cardToken             String,
-        paymentSystem         String,
-        paymentTool           String,
-
-        terminal              String,
-        providerId            String,
-        bankCountry           String,
-
-        partyId               String,
-        shopId                String,
-
-        amount                UInt64,
-        currency              String,
-
-        status                Enum8('pending' = 1, 'processed' = 2, 'captured' = 3, 'cancelled' = 4, 'failed' = 5),
-        errorReason           String,
-        errorCode             String,
-        paymentCountry        String
-    ) ENGINE = ReplacingMergeTree()
-    PARTITION BY toYYYYMM (timestamp)
-    ORDER BY (eventTimeHour, partyId, shopId, paymentTool, status, currency, providerId, fingerprint, cardToken, id);
 
     DROP TABLE IF EXISTS fraud.refund;
 
@@ -306,6 +232,12 @@ clickhouse client -n <<-EOSQL
 
     ALTER TABLE fraud.payment ADD COLUMN mobile UInt8;
     ALTER TABLE fraud.payment ADD COLUMN recurrent UInt8;
+
+    ALTER TABLE fraud.fraud_payment ADD COLUMN phone String;
+    ALTER TABLE fraud.fraud_payment ADD COLUMN cardCategory String;
+
+    ALTER TABLE fraud.payment ADD COLUMN phone String;
+    ALTER TABLE fraud.payment ADD COLUMN cardCategory String;
 
     DROP TABLE IF EXISTS fraud.withdrawal;
 
