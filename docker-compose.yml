@@ -66,24 +66,24 @@ services:
                                 echo Waiting 60 seconds for Connect to be ready... && \
                                 sleep 60'"
 
-   riak:
-     image: basho/riak-kv
-     hostname: riak
-     container_name: riak
-     ports:
-       - "8087:8087"
-       - "8098:8098"
-     environment:
-       - CLUSTER_NAME=riakts
-       - WAIT_FOR_ERLANG=500
-     labels:
-       - "com.basho.riak.cluster.name=riakts"
-     volumes:
-       - /tmp/docker/riak/data:/etc/riak/schemas
+#   riak:
+#     image: basho/riak-kv
+#     hostname: riak
+#     container_name: riak
+#     ports:
+#       - "8087:8087"
+#       - "8098:8098"
+#     environment:
+#       - CLUSTER_NAME=riakts
+#       - WAIT_FOR_ERLANG=500
+#     labels:
+#       - "com.basho.riak.cluster.name=riakts"
+#     volumes:
+#       - /tmp/docker/riak/data:/etc/riak/schemas
 
    clickhouse:
-     image: yandex/clickhouse-server:19.17.6.36
-#     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
+#     image: yandex/clickhouse-server:19.17.6.36
+     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
      hostname: clickhouse
      container_name: clickhouse
      environment:
@@ -94,88 +94,106 @@ services:
        - 8123:8123
      volumes:
        - ./clickhouse/data:/var/lib/clickhouse
+       - ./clickhouse/log:/var/log
        - ./clickhouse/docker-entrypoint-initdb.d/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
 
-   grafana:
-     image: grafana/grafana:5.1.0
-     hostname: grafana
-     container_name: grafana
-     ports:
-       - 3000:3000
-     environment:
-       GF_INSTALL_PLUGINS: "grafana-piechart-panel,vertamedia-clickhouse-datasource"
-       GF_SECURITY_ADMIN_USER: "admin"
-       GF_SECURITY_ADMIN_PASSWORD: "admin"
-     volumes:
-       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-       - ./grafana/datasources:/etc/grafana/provisioning/datasources
-
-   postgres-columbus:
-    image: rbkmoney/postgres-geodata:0eb52256576ec22f89fadc3e7fe505b692e838a3
-    hostname: postgres-columbus
-    container_name: postgres-columbus
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: columbus
-    entrypoint:
-      - /docker-entrypoint.sh
-      - postgres
-    ports:
-      - 5432:5432
-
-   columbus:
-    image: ghcr.io/valitydev/columbus:sha-13b6ac4
-    hostname: columbus
-    container_name: columbus
-    environment:
-      spring.datasource.url: "jdbc:postgresql://postgres-columbus:5432/columbus"
-      logging.level.com.rbkmoney.woody: "ERROR"
-    depends_on:
-      - postgres-columbus
-    ports:
-      - 8990:8022
-
-   wblist:
-     image: ghcr.io/valitydev/wb-list-manager:sha-a790a3b
-     hostname: wblist
-     container_name: wblist
-     environment:
-       kafka.bootstrap.servers: "broker:9092"
-       riak.address: riak
-       riak.port: 8087
-       management.metrics.export.statsd.enabled: "false"
-       logging.level.com.rbkmoney.woody: "ERROR"
-       kafka.wblist.topic.command: "wb-list-command"
-       kafka.wblist.topic.event.sink: "wb-list-event-sink"
-     depends_on:
-       - riak
-       - broker
-     ports:
-       - 8991:8022
-
-   trusted-tokens-manager:
-     image: rbkmoney/trusted-tokens-manager:c80faa351202b44e8cdd506daf6b268c41d08a2d
-     hostname: trusted-tokens-manager
-     container_name: trusted-tokens-manager
-     environment:
-       kafka.bootstrap-servers: "broker:9092"
-       kafka.client-id: "trusted-tokens-manager"
-       kafka.topics.payment.id: "payment_event"
-       kafka.topics.payment.consume.enabled: "true"
-       kafka.topics.withdrawal.consume.enabled: "true"
-       kafka.topics.withdrawal.id: "withdrawal"
-       riak.address: riak
-       riak.port: 8087
-       management.metrics.export.statsd.enabled: "false"
-       logging.config: "tmp/logback-test.xml"
-     depends_on:
-       - riak
-       - broker
-     ports:
-       - 8992:8022
-     volumes:
-       - ./log-java:/opt/trusted-tokens-manager/tmp
+#   grafana:
+#     image: grafana/grafana:5.1.0
+#     hostname: grafana
+#     container_name: grafana
+#     ports:
+#       - 3000:3000
+#     environment:
+#       GF_INSTALL_PLUGINS: "grafana-piechart-panel,vertamedia-clickhouse-datasource"
+#       GF_SECURITY_ADMIN_USER: "admin"
+#       GF_SECURITY_ADMIN_PASSWORD: "admin"
+#     volumes:
+#       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+#       - ./grafana/datasources:/etc/grafana/provisioning/datasources
+#
+#   postgres-columbus:
+#    image: rbkmoney/postgres-geodata:0eb52256576ec22f89fadc3e7fe505b692e838a3
+#    hostname: postgres-columbus
+#    container_name: postgres-columbus
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: columbus
+#    entrypoint:
+#      - /docker-entrypoint.sh
+#      - postgres
+#    ports:
+#      - 5432:5432
+#
+#   columbus:
+#    image: ghcr.io/valitydev/columbus:sha-13b6ac4
+#    hostname: columbus
+#    container_name: columbus
+#    environment:
+#      spring.datasource.url: "jdbc:postgresql://postgres-columbus:5432/columbus"
+#      logging.level.com.rbkmoney.woody: "ERROR"
+#    depends_on:
+#      - postgres-columbus
+#    ports:
+#      - 8990:8022
+#
+#   wblist:
+#     image: ghcr.io/valitydev/wb-list-manager:sha-a790a3b
+#     hostname: wblist
+#     container_name: wblist
+#     environment:
+#       kafka.bootstrap.servers: "broker:9092"
+#       riak.address: riak
+#       riak.port: 8087
+#       management.metrics.export.statsd.enabled: "false"
+#       logging.level.com.rbkmoney.woody: "ERROR"
+#       kafka.wblist.topic.command: "wb-list-command"
+#       kafka.wblist.topic.event.sink: "wb-list-event-sink"
+#     depends_on:
+#       - riak
+#       - broker
+#     ports:
+#       - 8991:8022
+#
+#   trusted-tokens-manager:
+#     image: rbkmoney/trusted-tokens-manager:c80faa351202b44e8cdd506daf6b268c41d08a2d
+#     hostname: trusted-tokens-manager
+#     container_name: trusted-tokens-manager
+#     environment:
+#       kafka.bootstrap-servers: "broker:9092"
+#       kafka.client-id: "trusted-tokens-manager"
+#       kafka.topics.payment.id: "payment_event"
+#       kafka.topics.payment.consume.enabled: "true"
+#       kafka.topics.withdrawal.consume.enabled: "true"
+#       kafka.topics.withdrawal.id: "withdrawal"
+#       riak.address: riak
+#       riak.port: 8087
+#       management.metrics.export.statsd.enabled: "false"
+#       logging.config: "tmp/logback-test.xml"
+#     depends_on:
+#       - riak
+#       - broker
+#     ports:
+#       - 8992:8022
+#     volumes:
+#       - ./log-java:/opt/trusted-tokens-manager/tmp
+#
+#   fraudbusters-api:
+#     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
+#     hostname: fraudbusters-api
+#     container_name: fraudbusters-api
+#     environment:
+#       management.security.enabled: 'false'
+#       logging.config: "tmp/logback-test.xml"
+#       fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
+#       fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
+#       server.port: "8080"
+#     depends_on:
+#       - fraudbusters
+#     ports:
+#       - 9999:8080
+#     volumes:
+#       - ./log-java:/opt/fraudbusters-api/tmp
 
    fraudbusters:
      image: ghcr.io/valitydev/fraudbusters:sha-f0c8357
@@ -199,33 +217,16 @@ services:
      depends_on:
        - clickhouse
        - broker
-       - columbus
-       - wblist
-       - kafka-setup
-       - trusted-tokens-manager
+#       - columbus
+#       - wblist
+#       - kafka-setup
+#       - trusted-tokens-manager
      ports:
        - 8999:8022
        - 8111:8089
      volumes:
        - ./log-java:/opt/fraudbusters/tmp
        - ./card-tokens:/opt/fraudbusters/card-tokens
-
-   fraudbusters-api:
-     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
-     hostname: fraudbusters-api
-     container_name: fraudbusters-api
-     environment:
-       management.security.enabled: 'false'
-       logging.config: "tmp/logback-test.xml"
-       fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
-       fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
-       server.port: "8080"
-     depends_on:
-       - fraudbusters
-     ports:
-       - 9999:8080
-     volumes:
-       - ./log-java:/opt/fraudbusters-api/tmp
 
    postgres-fb:
      container_name: postgres_container
@@ -243,7 +244,7 @@ services:
      restart: unless-stopped
 
    fb-management:
-     image: ghcr.io/valitydev/fraudbusters-management:sha-7a393ea
+     image: ghcr.io/valitydev/fraudbusters-management:sha-cc49e98
      hostname: fb-management
      container_name: fb-management
      environment:
@@ -257,6 +258,7 @@ services:
        management.metrics.binders.jvm.enabled: 'false'
        service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
        service.historical.url: 'http://fraudbusters:8022/historical_data/v1/'
+       service.historical.networkTimeout: 30000
        service.notification.url: 'http://fb-notificator:8022/notification/v1'
        service.notification-channel.url: 'http://fb-notificator:8022/notification-channel/v1'
        service.notification-template.url: 'http://fb-notificator:8022/notification-template/v1'
@@ -271,78 +273,78 @@ services:
      depends_on:
        - fraudbusters
        - broker
-       - wblist
+#       - wblist
        - postgres-fb
        - kafka-setup
-       - fb-notificator
+#       - fb-notificator
      volumes:
        - ./log-java:/opt/fraudbusters-management/tmp
-
-   fb-notificator:
-     image: ghcr.io/valitydev/fraudbusters-notificator:sha-2574ac0
-     hostname: fb-notificator
-     container_name: fb-notificator
-     environment:
-       spring.datasource.url: "jdbc:postgresql://postgres-notificator:5432/fb_notificator"
-       logging.config: "./tmp/logback-test.xml"
-       management.metrics.binders.jvm.enabled: 'false'
-       warehouse.url: 'http://fb-warehouse:8022/query/v1/'
-       spring.profiles.active: 'debug'
-     ports:
-       - 8086:8022
-     depends_on:
-       - postgres-notificator
-       - fb-warehouse
-     volumes:
-       - ./log-java:/opt/fraudbusters-notificator/tmp
-
-   postgres-notificator:
-     container_name: postgres_notificator
-     hostname: postgres-notificator
-     image: postgres
-     environment:
-       POSTGRES_USER: postgres
-       POSTGRES_PASSWORD: postgres
-       POSTGRES_DB: fb_notificator
-       PGDATA: /data/postgres
-     ports:
-       - 6435:5432
-     volumes:
-       - ./postgres/data/4:/data/postgres
-     restart: unless-stopped
-
-   fb-warehouse:
-     image: ghcr.io/valitydev/fraudbusters-warehouse:sha-251429b
-     hostname: fb-warehouse
-     container_name: fb-warehouse
-     environment:
-       clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
-       clickhouse.db.user: 'user'
-       clickhouse.db.password: 'password'
-       logging.config: "./tmp/logback-test.xml"
-       management.metrics.binders.jvm.enabled: 'false'
-       spring.profiles.active: 'debug'
-     ports:
-       - 8088:8080
-     depends_on:
-       - clickhouse
-     volumes:
-       - ./log-java:/opt/fraudbusters-warehouse/tmp
-
-   fraudbusters-ui:
-     image: ghcr.io/valitydev/fraudbusters-ui:sha-5661f6f
-     hostname: fraudbusters-ui
-     container_name: fraudbusters-ui
-     environment:
-       platform: linux/amd64
-     ports:
-       - 8989:8080
-     depends_on:
-       - fb-management
-     volumes:
-       - ./fraudbusters-ui/nginx.conf:/etc/nginx/vhosts.d/fraudbusters-ui.conf
-       - ./fraudbusters-ui/appConfig.json:/usr/share/nginx/html/assets/appConfig.json
-       - ./fraudbusters-ui/authConfig.json:/usr/share/nginx/html/assets/authConfig.json
+#
+#   fb-notificator:
+#     image: ghcr.io/valitydev/fraudbusters-notificator:sha-2574ac0
+#     hostname: fb-notificator
+#     container_name: fb-notificator
+#     environment:
+#       spring.datasource.url: "jdbc:postgresql://postgres-notificator:5432/fb_notificator"
+#       logging.config: "./tmp/logback-test.xml"
+#       management.metrics.binders.jvm.enabled: 'false'
+#       warehouse.url: 'http://fb-warehouse:8022/query/v1/'
+#       spring.profiles.active: 'debug'
+#     ports:
+#       - 8086:8022
+#     depends_on:
+#       - postgres-notificator
+#       - fb-warehouse
+#     volumes:
+#       - ./log-java:/opt/fraudbusters-notificator/tmp
+#
+#   postgres-notificator:
+#     container_name: postgres_notificator
+#     hostname: postgres-notificator
+#     image: postgres
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: fb_notificator
+#       PGDATA: /data/postgres
+#     ports:
+#       - 6435:5432
+#     volumes:
+#       - ./postgres/data/4:/data/postgres
+#     restart: unless-stopped
+#
+#   fb-warehouse:
+#     image: ghcr.io/valitydev/fraudbusters-warehouse:sha-251429b
+#     hostname: fb-warehouse
+#     container_name: fb-warehouse
+#     environment:
+#       clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
+#       clickhouse.db.user: 'user'
+#       clickhouse.db.password: 'password'
+#       logging.config: "./tmp/logback-test.xml"
+#       management.metrics.binders.jvm.enabled: 'false'
+#       spring.profiles.active: 'debug'
+#     ports:
+#       - 8088:8080
+#     depends_on:
+#       - clickhouse
+#     volumes:
+#       - ./log-java:/opt/fraudbusters-warehouse/tmp
+#
+#   fraudbusters-ui:
+#     image: ghcr.io/valitydev/fraudbusters-ui:sha-5661f6f
+#     hostname: fraudbusters-ui
+#     container_name: fraudbusters-ui
+#     environment:
+#       platform: linux/amd64
+#     ports:
+#       - 8989:8080
+#     depends_on:
+#       - fb-management
+#     volumes:
+#       - ./fraudbusters-ui/nginx.conf:/etc/nginx/vhosts.d/fraudbusters-ui.conf
+#       - ./fraudbusters-ui/appConfig.json:/usr/share/nginx/html/assets/appConfig.json
+#       - ./fraudbusters-ui/authConfig.json:/usr/share/nginx/html/assets/authConfig.json
 
    keycloak:
       image: docker.io/wizzn/keycloak:14
