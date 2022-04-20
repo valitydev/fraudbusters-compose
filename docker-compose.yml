@@ -141,7 +141,7 @@ services:
       - 8990:8022
 
    wblist:
-     image: ghcr.io/valitydev/wb-list-manager:sha-33b579b
+     image: ghcr.io/valitydev/wb-list-manager:sha-a790a3b
      hostname: wblist
      container_name: wblist
      environment:
