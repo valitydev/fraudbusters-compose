@@ -3,17 +3,19 @@ version: '2'
 services:
    zookeeper:
      image: confluentinc/cp-zookeeper:5.0.1
+#     image: watershine/cp-zookeeper:6.1.0-arm64
      hostname: zookeeper
      container_name: zookeeper
      environment:
        ZOOKEEPER_CLIENT_PORT: 2181
        ZOOKEEPER_TICK_TIME: 2000
      volumes:
-       - /tmp/docker/zookeeper/data:/var/lib/zookeeper/data
-       - /tmp/docker/zookeeper/logs:/var/lib/zookeeper/log
+       - ./tmp/docker/zookeeper/data:/var/lib/zookeeper/data
+       - ./tmp/docker/zookeeper/logs:/var/lib/zookeeper/log
 
    broker:
      image: confluentinc/cp-enterprise-kafka:5.0.1
+#     image: watershine/cp-enterprise-kafka:6.1.0-arm64
      hostname: broker
      container_name: broker
      depends_on:
@@ -35,7 +37,7 @@ services:
        - 9092:9092
        - 29092:29092
      volumes:
-       - /tmp/docker/kafka2/data:/var/lib/kafka/data
+       - ./tmp/docker/kafka/data:/var/lib/kafka/data
 
    kafka-setup:
      image: confluentinc/cp-kafka:5.1.1
@@ -76,13 +78,14 @@ services:
      environment:
        - CLUSTER_NAME=riakts
        - WAIT_FOR_ERLANG=500
+       - TZ=Europe/Moscow
      labels:
        - "com.basho.riak.cluster.name=riakts"
      volumes:
        - /tmp/docker/riak/data:/etc/riak/schemas
 
    clickhouse:
-     image: yandex/clickhouse-server:19.17.6.36
+     image: yandex/clickhouse-server:20.6.7.4
 #     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
      hostname: clickhouse
      container_name: clickhouse
@@ -142,7 +145,7 @@ services:
      hostname: wblist
      container_name: wblist
      environment:
-       kafka.bootstrap.servers: "broker:9092"
+       kafka.bootstrap-servers: "broker:9092"
        riak.address: riak
        riak.port: 8087
        management.metrics.export.statsd.enabled: "false"
@@ -204,16 +207,18 @@ services:
        kafka.ssl.enable: 'false'
        kafka.bootstrap.servers: "broker:9092"
        geo.ip.service.url: "http://columbus:8022/repo"
-       wb.list.service.url: "http://wblist:8022/v1/wb_list"
+       wb.list.service.url: "http://wblist:8022/wb_list/v1"
        clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
        logging.config: "tmp/logback-test.xml"
        card-token-pool.filePath: "card-tokens"
        clickhouse.db.user: 'user'
        clickhouse.db.password: 'password'
-       fraud.management.url: 'fb-management:8080'
+       fraud.management.url: 'http://fb-management:8080/fb-management/v1'
        result.full.check.enabled: 'false'
        spring.profiles.active: 'full-prod'
+       load.isTrusted.enabled: 'false'
        trusted.tokens.url: 'http://trusted-tokens-manager:8022/trusted/tokens'
+       dgraph.service.enabled: 'false'
      depends_on:
        - clickhouse
        - broker
