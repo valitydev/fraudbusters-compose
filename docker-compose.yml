@@ -85,8 +85,8 @@ services:
        - /tmp/docker/riak/data:/etc/riak/schemas
 
    clickhouse:
-#     image: yandex/clickhouse-server:19.17.6.36
-     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
+     image: yandex/clickhouse-server:20.6.7.4
+#     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
      hostname: clickhouse
      container_name: clickhouse
      environment:
