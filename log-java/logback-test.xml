@@ -6,6 +6,7 @@
     <root level="warn">
         <appender-ref ref="CONSOLE"/>
     </root>
-    <logger name="com.rbkmoney" level="INFO"/>
+    <logger name="dev.vality" level="INFO"/>
+    <logger name="dev.vality.woody" level="INFO"/>
     <logger name="org.springframework.jdbc.core" level="ALL"/>
 </configuration>

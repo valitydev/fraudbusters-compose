@@ -3,17 +3,19 @@ version: '2'
 services:
    zookeeper:
      image: confluentinc/cp-zookeeper:5.0.1
+#     image: watershine/cp-zookeeper:6.1.0-arm64
      hostname: zookeeper
      container_name: zookeeper
      environment:
        ZOOKEEPER_CLIENT_PORT: 2181
        ZOOKEEPER_TICK_TIME: 2000
      volumes:
-       - /tmp/docker/zookeeper/data:/var/lib/zookeeper/data
-       - /tmp/docker/zookeeper/logs:/var/lib/zookeeper/log
+       - ./tmp/docker/zookeeper/data:/var/lib/zookeeper/data
+       - ./tmp/docker/zookeeper/logs:/var/lib/zookeeper/log
 
    broker:
      image: confluentinc/cp-enterprise-kafka:5.0.1
+#     image: watershine/cp-enterprise-kafka:6.1.0-arm64
      hostname: broker
      container_name: broker
      depends_on:
@@ -35,7 +37,7 @@ services:
        - 9092:9092
        - 29092:29092
      volumes:
-       - /tmp/docker/kafka2/data:/var/lib/kafka/data
+       - ./tmp/docker/kafka/data:/var/lib/kafka/data
 
    kafka-setup:
      image: confluentinc/cp-kafka:5.1.1
@@ -48,7 +50,6 @@ services:
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic wb-list-command  && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic wb-list-event-sink && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic result  && \
-                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic p2p_result  && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic fraud_payment && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic payment_event && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic refund_event && \
@@ -56,13 +57,9 @@ services:
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic withdrawal && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic unknown_initiating_entity && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template && \
-                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_p2p && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_reference && \
-                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_p2p_reference && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_list && \
-                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_p2p_list && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_reference && \
-                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic group_p2p_reference && \
                                 echo Waiting 60 seconds for Connect to be ready... && \
                                 sleep 60'"
 
@@ -76,6 +73,7 @@ services:
      environment:
        - CLUSTER_NAME=riakts
        - WAIT_FOR_ERLANG=500
+       - TZ=Europe/Moscow
      labels:
        - "com.basho.riak.cluster.name=riakts"
      volumes:
@@ -94,6 +92,7 @@ services:
        - 8123:8123
      volumes:
        - ./clickhouse/data:/var/lib/clickhouse
+       - ./clickhouse/log:/var/log
        - ./clickhouse/docker-entrypoint-initdb.d/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
 
    grafana:
@@ -141,7 +140,7 @@ services:
      hostname: wblist
      container_name: wblist
      environment:
-       kafka.bootstrap.servers: "broker:9092"
+       kafka.bootstrap-servers: "broker:9092"
        riak.address: riak
        riak.port: 8087
        management.metrics.export.statsd.enabled: "false"
@@ -155,7 +154,7 @@ services:
        - 8991:8022
 
    trusted-tokens-manager:
-     image: rbkmoney/trusted-tokens-manager:c80faa351202b44e8cdd506daf6b268c41d08a2d
+     image: ghcr.io/valitydev/trusted-tokens-manager:sha-efd3f86
      hostname: trusted-tokens-manager
      container_name: trusted-tokens-manager
      environment:
@@ -178,7 +177,7 @@ services:
        - ./log-java:/opt/trusted-tokens-manager/tmp
 
    fraudbusters:
-     image: ghcr.io/valitydev/fraudbusters:sha-f0c8357
+     image: ghcr.io/valitydev/fraudbusters:sha-676a876
      hostname: fraudbusters
      container_name: fraudbusters
      environment:
@@ -186,16 +185,18 @@ services:
        kafka.ssl.enable: 'false'
        kafka.bootstrap.servers: "broker:9092"
        geo.ip.service.url: "http://columbus:8022/repo"
-       wb.list.service.url: "http://wblist:8022/v1/wb_list"
+       wb.list.service.url: "http://wblist:8022/wb_list/v1"
        clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
        logging.config: "tmp/logback-test.xml"
        card-token-pool.filePath: "card-tokens"
        clickhouse.db.user: 'user'
        clickhouse.db.password: 'password'
-       fraud.management.url: 'fb-management:8080'
+       fraud.management.url: 'http://fb-management:8080/fb-management/v1'
        result.full.check.enabled: 'false'
        spring.profiles.active: 'full-prod'
+       load.isTrusted.enabled: 'false'
        trusted.tokens.url: 'http://trusted-tokens-manager:8022/trusted/tokens'
+       dgraph.service.enabled: 'false'
      depends_on:
        - clickhouse
        - broker
@@ -220,6 +221,7 @@ services:
        fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
        fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
        server.port: "8080"
+       server.tomcat.connection-timeout: 15000
      depends_on:
        - fraudbusters
      ports:
@@ -243,7 +245,7 @@ services:
      restart: unless-stopped
 
    fb-management:
-     image: ghcr.io/valitydev/fraudbusters-management:sha-7a393ea
+     image: ghcr.io/valitydev/fraudbusters-management:sha-cc49e98
      hostname: fb-management
      container_name: fb-management
      environment:
@@ -256,6 +258,7 @@ services:
        logging.config: "./tmp/logback-test.xml"
        management.metrics.binders.jvm.enabled: 'false'
        service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
+       service.payment.networkTimeout: 15000
        service.historical.url: 'http://fraudbusters:8022/historical_data/v1/'
        service.notification.url: 'http://fb-notificator:8022/notification/v1'
        service.notification-channel.url: 'http://fb-notificator:8022/notification-channel/v1'
@@ -266,6 +269,7 @@ services:
        keycloak.resource: "fraudbusters-app"
        keycloak.auth-server-url: "http://keycloak:8080/auth"
        cors.allowed-origins: "*"
+       server.tomcat.connection-timeout: 15000
      ports:
        - 8085:8080
      depends_on:
@@ -354,6 +358,19 @@ services:
       environment:
         KEYCLOAK_USER: "admin"
         KEYCLOAK_PASSWORD: "admin"
+
+   e2e-test:
+     build: ./e2e-test
+     image: e2e-test
+     container_name: e2e-test
+     command: dockerize -wait tcp://fb-management:8080 -wait tcp://fraudbusters:8022 -wait tcp://fraudbusters-api:8080 -timeout 10000s -wait-retry-interval 10s bash -c "npm test"
+     environment:
+       FB_MNGMT_URL: http://fb-management:8080
+       FB_API_URL: http://fraudbusters-api:8080
+     depends_on:
+       - fb-management
+       - fraudbusters
+       - fraudbusters-api
 
 networks:
   default:
