@@ -80,7 +80,7 @@ services:
        - /tmp/docker/riak/data:/etc/riak/schemas
 
    clickhouse:
-     image: yandex/clickhouse-server:19.17.6.36
+     image: yandex/clickhouse-server:20.6.7.4
 #     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
      hostname: clickhouse
      container_name: clickhouse
@@ -176,6 +176,23 @@ services:
      volumes:
        - ./log-java:/opt/trusted-tokens-manager/tmp
 
+   fraudbusters-api:
+     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
+     hostname: fraudbusters-api
+     container_name: fraudbusters-api
+     environment:
+       management.security.enabled: 'false'
+       logging.config: "tmp/logback-test.xml"
+       fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
+       fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
+       server.port: "8080"
+     depends_on:
+       - fraudbusters
+     ports:
+       - 9999:8080
+     volumes:
+       - ./log-java:/opt/fraudbusters-api/tmp
+
    fraudbusters:
      image: ghcr.io/valitydev/fraudbusters:sha-676a876
      hostname: fraudbusters
@@ -197,6 +214,11 @@ services:
        load.isTrusted.enabled: 'false'
        trusted.tokens.url: 'http://trusted-tokens-manager:8022/trusted/tokens'
        dgraph.service.enabled: 'false'
+       kafka.topic.group-list: 'group_list'
+       kafka.topic.group-reference: 'group_reference'
+       kafka.listen.result.concurrency: 7
+       kafka.max.poll.records: 1
+       kafka.max.backoff.interval: 1000
      depends_on:
        - clickhouse
        - broker
@@ -221,7 +243,6 @@ services:
        fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
        fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
        server.port: "8080"
-       server.tomcat.connection-timeout: 15000
      depends_on:
        - fraudbusters
      ports:
@@ -250,16 +271,19 @@ services:
      container_name: fb-management
      environment:
        kafka.bootstrap-servers: "broker:9092"
-       kafka.wblist.topic.command: "wb-list-command"
-       kafka.wblist.topic.event.sink: "wb-list-event-sink"
-       kafka.fraudbusters.template: "template"
-       kafka.fraudbusters.reference: "template_reference"
+       kafka.topic.wblist.command: "wb-list-command"
+       kafka.topic.wblist.event.sink: "wb-list-event-sink"
+       kafka.topic.fraudbusters.payment.template: "template"
+       kafka.topic.fraudbusters.payment.reference: "template_reference"
+       kafka.topic.fraudbusters.payment.group.list: "group_list"
+       kafka.topic.fraudbusters.payment.group.reference: "group_reference"
        spring.datasource.url: "jdbc:postgresql://postgres-fb:5432/fraudbusters"
        logging.config: "./tmp/logback-test.xml"
        management.metrics.binders.jvm.enabled: 'false'
        service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
        service.payment.networkTimeout: 15000
        service.historical.url: 'http://fraudbusters:8022/historical_data/v1/'
+       service.historical.networkTimeout: 30000
        service.notification.url: 'http://fb-notificator:8022/notification/v1'
        service.notification-channel.url: 'http://fb-notificator:8022/notification-channel/v1'
        service.notification-template.url: 'http://fb-notificator:8022/notification-template/v1'
@@ -269,7 +293,6 @@ services:
        keycloak.resource: "fraudbusters-app"
        keycloak.auth-server-url: "http://keycloak:8080/auth"
        cors.allowed-origins: "*"
-       server.tomcat.connection-timeout: 15000
      ports:
        - 8085:8080
      depends_on:
@@ -358,6 +381,8 @@ services:
       environment:
         KEYCLOAK_USER: "admin"
         KEYCLOAK_PASSWORD: "admin"
+      volumes:
+        - ./keycloak/themes/fraudbusters:/opt/jboss/keycloak/themes/fraudbusters
 
    e2e-test:
      build: ./e2e-test
