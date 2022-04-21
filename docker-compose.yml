@@ -233,23 +233,6 @@ services:
        - ./log-java:/opt/fraudbusters/tmp
        - ./card-tokens:/opt/fraudbusters/card-tokens
 
-   fraudbusters-api:
-     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
-     hostname: fraudbusters-api
-     container_name: fraudbusters-api
-     environment:
-       management.security.enabled: 'false'
-       logging.config: "tmp/logback-test.xml"
-       fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
-       fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
-       server.port: "8080"
-     depends_on:
-       - fraudbusters
-     ports:
-       - 9999:8080
-     volumes:
-       - ./log-java:/opt/fraudbusters-api/tmp
-
    postgres-fb:
      container_name: postgres_container
      hostname: postgres-fb
