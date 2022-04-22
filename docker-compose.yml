@@ -154,7 +154,7 @@ services:
        - 8991:8022
 
    trusted-tokens-manager:
-     image: rbkmoney/trusted-tokens-manager:c80faa351202b44e8cdd506daf6b268c41d08a2d
+     image: ghcr.io/valitydev/trusted-tokens-manager:sha-efd3f86
      hostname: trusted-tokens-manager
      container_name: trusted-tokens-manager
      environment:
@@ -194,7 +194,7 @@ services:
        - ./log-java:/opt/fraudbusters-api/tmp
 
    fraudbusters:
-     image: ghcr.io/valitydev/fraudbusters:sha-f0c8357
+     image: ghcr.io/valitydev/fraudbusters:sha-676a876
      hostname: fraudbusters
      container_name: fraudbusters
      environment:
@@ -264,6 +264,7 @@ services:
        logging.config: "./tmp/logback-test.xml"
        management.metrics.binders.jvm.enabled: 'false'
        service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
+       service.payment.networkTimeout: 15000
        service.historical.url: 'http://fraudbusters:8022/historical_data/v1/'
        service.historical.networkTimeout: 30000
        service.notification.url: 'http://fb-notificator:8022/notification/v1'
@@ -365,6 +366,19 @@ services:
         KEYCLOAK_PASSWORD: "admin"
       volumes:
         - ./keycloak/themes/fraudbusters:/opt/jboss/keycloak/themes/fraudbusters
+
+   e2e-test:
+     build: ./e2e-test
+     image: e2e-test
+     container_name: e2e-test
+     command: dockerize -wait tcp://fb-management:8080 -wait tcp://fraudbusters:8022 -wait tcp://fraudbusters-api:8080 -timeout 10000s -wait-retry-interval 10s bash -c "npm test"
+     environment:
+       FB_MNGMT_URL: http://fb-management:8080
+       FB_API_URL: http://fraudbusters-api:8080
+     depends_on:
+       - fb-management
+       - fraudbusters
+       - fraudbusters-api
 
 networks:
   default:
