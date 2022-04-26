@@ -127,6 +127,8 @@ services:
     image: ghcr.io/valitydev/columbus:sha-13b6ac4
     hostname: columbus
     container_name: columbus
+    mem_limit: 256m
+    mem_reservation: 128M
     environment:
       spring.datasource.url: "jdbc:postgresql://postgres-columbus:5432/columbus"
       logging.level.com.rbkmoney.woody: "ERROR"
@@ -139,6 +141,8 @@ services:
      image: ghcr.io/valitydev/wb-list-manager:sha-a790a3b
      hostname: wblist
      container_name: wblist
+     mem_limit: 256m
+     mem_reservation: 128M
      environment:
        kafka.bootstrap-servers: "broker:9092"
        riak.address: riak
@@ -157,6 +161,8 @@ services:
      image: rbkmoney/trusted-tokens-manager:c80faa351202b44e8cdd506daf6b268c41d08a2d
      hostname: trusted-tokens-manager
      container_name: trusted-tokens-manager
+     mem_limit: 256m
+     mem_reservation: 128M
      environment:
        kafka.bootstrap-servers: "broker:9092"
        kafka.client-id: "trusted-tokens-manager"
@@ -180,6 +186,8 @@ services:
      image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
      hostname: fraudbusters-api
      container_name: fraudbusters-api
+     mem_limit: 256m
+     mem_reservation: 128M
      environment:
        management.security.enabled: 'false'
        logging.config: "tmp/logback-test.xml"
@@ -197,6 +205,8 @@ services:
      image: ghcr.io/valitydev/fraudbusters:sha-f0c8357
      hostname: fraudbusters
      container_name: fraudbusters
+     mem_limit: 512m
+     mem_reservation: 128M
      environment:
        management.security.enabled: 'false'
        kafka.ssl.enable: 'false'
@@ -252,6 +262,8 @@ services:
      image: ghcr.io/valitydev/fraudbusters-management:sha-cc49e98
      hostname: fb-management
      container_name: fb-management
+     mem_limit: 256m
+     mem_reservation: 128M
      environment:
        kafka.bootstrap-servers: "broker:9092"
        kafka.topic.wblist.command: "wb-list-command"
@@ -291,6 +303,8 @@ services:
      image: ghcr.io/valitydev/fraudbusters-notificator:sha-2574ac0
      hostname: fb-notificator
      container_name: fb-notificator
+     mem_limit: 256m
+     mem_reservation: 128M
      environment:
        spring.datasource.url: "jdbc:postgresql://postgres-notificator:5432/fb_notificator"
        logging.config: "./tmp/logback-test.xml"
@@ -324,6 +338,8 @@ services:
      image: ghcr.io/valitydev/fraudbusters-warehouse:sha-251429b
      hostname: fb-warehouse
      container_name: fb-warehouse
+     mem_limit: 256m
+     mem_reservation: 128M
      environment:
        clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
        clickhouse.db.user: 'user'
