@@ -6,7 +6,7 @@ ${msg("loginTitle",(realm.displayName!''))}
     <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet"/>
     <link href="${url.resourcesPath}/img/favicon.png" rel="icon"/>
     <script>
-        function togglePassword() {
+        function togglePassword(id) {
             var x = document.getElementById("password");
             var v = document.getElementById("vi");
             if (x.type === "password") {
@@ -25,7 +25,7 @@ ${msg("loginTitle",(realm.displayName!''))}
 <div class="box-container">
     <#if realm.password>
         <div>
-            <form id="kc-form-login" class="form" onsubmit="return true;" action="${url.loginAction}" method="post">
+            <form id="kc-form-login" class="form update-password" onsubmit="return true;" action="${url.loginAction}" method="post">
                 <input id="username" class="login-field" placeholder="${msg("username")}" type="text" name="username"
                        tabindex="1">
                 <div>
