@@ -6,9 +6,9 @@
         <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet"/>
         <link href="${url.resourcesPath}/img/favicon.png" rel="icon"/>
         <script>
-            function togglePassword(id, elementId) {
-                var x = document.getElementById(id);
-                var v = document.getElementById(elementId);
+            function togglePassword(inputPasswordId, eyeImageId) {
+                var x = document.getElementById(inputPasswordId);
+                var v = document.getElementById(eyeImageId);
                 if (x.type === "password") {
                     x.type = "text";
                     v.src = "${url.resourcesPath}/img/eye.png";
