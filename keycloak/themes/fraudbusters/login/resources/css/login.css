@@ -139,6 +139,10 @@ body {
     align-items: center;
 }
 
+.login-content img {
+    width: 18px;
+}
+
 .identity-providers {
     width: 270px;
     font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -182,5 +186,9 @@ body {
 }
 
 .alert.alert-error {
+    height: 0;
+}
+
+.alert.alert-warning {
     height: 0;
 }
