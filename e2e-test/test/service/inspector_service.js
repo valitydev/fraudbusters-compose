@@ -9,7 +9,7 @@ const FB_API_URL = config.fbApi.url;
 const INSPECT_PATH = config.fb.inspectPath;
 
 module.exports.inspectPayment =
-    function (done, email, ip, fingerprint, cardToken, result, partyId, shopId, amount, currency) {
+    function (done, checkResponse, email, ip, fingerprint, cardToken, partyId, shopId, amount, currency) {
         let TEST_INSPECTOR_PAYMENT_REQ_HIGH = {
             context: contextFactory.create(
                 "invoice_id",
@@ -24,7 +24,7 @@ module.exports.inspectPayment =
             )
         };
 
-        chai.request(FB_API_URL)
+        chai.request(FB_API_URL, checkResponse)
             .post(INSPECT_PATH)
             .send(TEST_INSPECTOR_PAYMENT_REQ_HIGH)
             .end(function (err, res) {
@@ -33,11 +33,7 @@ module.exports.inspectPayment =
                     done(err);
                 }
                 should.not.exist(err);
-                res.should.have.status(200);
-                res.should.be.json;
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.result.should.equal(result);
+                checkResponse(res);
                 done()
             });
     }

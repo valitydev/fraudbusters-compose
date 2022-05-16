@@ -8,40 +8,72 @@ const config = require("../config");
 const inspectorService = require("./service/inspector_service.js");
 
 const testTimeout = config.testTimeout;
-const templateId = "test-templ-id";
+const TEMPLATE_ID = "test-templ-id";
 
+const TEMPLATE = "rule:amount_test:amount() >= 20 -> decline;";
+const PARTY_ID = "partyTest";
+const SHOP_ID = "shopTest";
 describe('Test for simple rule inspection', function () {
     this.timeout(testTimeout);
 
     it('it should create a new template', function (done) {
-        templateFactory.create(done, "rule:amount_test:amount() >= 20 -> decline;", templateId);
+        templateFactory.create(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.should.have.property("id");
+            res.body.should.have.property("template");
+            res.body.id.should.not.be.null;
+            res.body.template.should.not.be.null;
+            res.body.id.should.equal(TEMPLATE_ID);
+            res.body.template.should.equal(TEMPLATE);
+        }, TEMPLATE, TEMPLATE_ID);
     });
 
     it('it should create a new reference for template', function (done) {
-        referenceFactory.create(done, "partyTest", "shopTest", templateId);
+        referenceFactory.create(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("array");
+            res.body.length.should.be.eql(1);
+            res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+        }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 
     it('it should inspect that payment have FATAL risk', function (done) {
         inspectorService.inspectPayment(done,
+            (res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.result.should.equal('fatal');
+            },
             "test@mail.ru",
             "123.123.123.123",
             "xxxxx",
             "4J8vmnlYPwzYzia74fny81",
-            'fatal',
-            "partyTest",
-            "shopTest",
+            PARTY_ID,
+            SHOP_ID,
             100);
     });
 
     it('it should inspect that payment have default HIGH risk', function (done) {
         inspectorService.inspectPayment(done,
+            (res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.result.should.equal('high');
+            },
             "test@mail.ru",
             "123.123.123.123",
             "xxxxx",
             "4J8vmnlYPwzYzia74fny81",
-            'high',
-            "partyTest",
-            "shopTest",
+            PARTY_ID,
+            SHOP_ID,
             10);
     });
 });

@@ -41,11 +41,28 @@ describe('Test for check aggregates', function () {
     this.timeout(testTimeout);
 
     it('it should create a new template', function (done) {
-        templateFactory.create(done, TEMPLATE, TEMPLATE_ID);
+        templateFactory.create(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("object");
+            res.body.should.have.property("errors");
+            res.body.should.have.property("id");
+            res.body.should.have.property("template");
+            res.body.id.should.not.be.null;
+            res.body.template.should.not.be.null;
+            res.body.id.should.equal(TEMPLATE_ID);
+            res.body.template.should.equal(TEMPLATE);
+        }, TEMPLATE, TEMPLATE_ID);
     });
 
     it('it should create a new reference for template', function (done) {
-        referenceFactory.create(done, PARTY_ID, SHOP_ID, TEMPLATE_ID);
+        referenceFactory.create(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("array");
+            res.body.length.should.be.eql(1);
+            res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+        }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 
     let ipUniq = generateIp("192.1.1.");
@@ -53,34 +70,66 @@ describe('Test for check aggregates', function () {
     let fingerprint = generateFingerprint();
 
     it('it should inspect that payment have HIGH risk for UNIQUE', function (done) {
-        inspectorService.inspectPayment(done, EMAIL, ipUniq, fingerprint, cardToken, 'high', PARTY_ID, SHOP_ID);
+        inspectorService.inspectPayment(done, (res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.result.should.equal('high');
+            },
+            EMAIL, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
     it('it should upload payment to history', function (done) {
-        paymentService.uploadPayment(done, status, EMAIL, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
+        paymentService.uploadPayment(done, (res) => {
+                res.should.have.status(200);
+            },
+            status, EMAIL, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
 
     const emailUnique = 'test_unique_2@vality.dev';
 
     it('it should inspect that payment have FATAL risk for UNIQUE', function (done) {
-        inspectorService.inspectPayment(done, emailUnique, ipUniq, fingerprint, cardToken, 'fatal', PARTY_ID, SHOP_ID);
+        inspectorService.inspectPayment(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("object");
+            res.body.should.have.property("result");
+            res.body.result.should.equal('fatal');
+        }, emailUnique, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
     it('it should upload payment to history', function (done) {
-        paymentService.uploadPayment(done, status, emailUnique, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
+        paymentService.uploadPayment(done, (res) => {
+                res.should.have.status(200);
+            },
+            status, emailUnique, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
 
     const ipCount = generateIp("192.1.2.");
     const emailCount = "test_count@vality.dev";
 
     it('it should inspect that payment have FATAL risk for COUNT', function (done) {
-        inspectorService.inspectPayment(done, emailCount, ipCount, fingerprint, cardToken, 'fatal', PARTY_ID, SHOP_ID);
+        inspectorService.inspectPayment(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("object");
+            res.body.should.have.property("result");
+            res.body.result.should.equal('fatal');
+        }, emailCount, ipCount, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
     const emailSum = "test_sum@vality.dev";
     let cardTokenSum = generateCardToken();
 
     it('it should inspect that payment have FATAL risk for SUM', function (done) {
-        inspectorService.inspectPayment(done, emailSum, ipCount, fingerprint, cardTokenSum, 'fatal', PARTY_ID, SHOP_ID);
+        inspectorService.inspectPayment(done, (res) => {
+            res.should.have.status(200);
+            res.should.be.json;
+            res.body.should.be.a("object");
+            res.body.should.have.property("result");
+            res.body.result.should.equal('fatal');
+        }, emailSum, ipCount, fingerprint, cardTokenSum, PARTY_ID, SHOP_ID);
     });
+
 });

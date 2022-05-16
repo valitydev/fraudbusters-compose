@@ -7,7 +7,7 @@ chai.use(chaiHttp);
 const REFERENCE_PATH = config.fbManagement.referencePath;
 const FB_MGMNT_URL = config.fbManagement.url;
 
-module.exports.create = function (done, partyId, shopId, templateId) {
+module.exports.create = function (done, checkResponse, partyId, shopId, templateId) {
     let TEST_REFERENCES = [
         {
             id: "ref_" + Math.floor(Math.random() * 10000),
@@ -28,11 +28,7 @@ module.exports.create = function (done, partyId, shopId, templateId) {
                 done(err);
             }
             should.not.exist(err);
-            res.should.have.status(200);
-            res.should.be.json;
-            res.body.should.be.a("array");
-            res.body.length.should.be.eql(1);
-            res.body.should.does.include(TEST_REFERENCES[0].partyId + "_" + TEST_REFERENCES[0].shopId);
+            checkResponse(res);
             done()
         });
 }

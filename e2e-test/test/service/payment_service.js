@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 const HISTORY_PAYMENT_PATH = config.fb.historyPaymentsPath;
 const FB_API_URL = config.fbApi.url;
 
-module.exports.uploadPayment = function (done, status, email, ip, cardToken, fingerprint, partyId, shopId, invoiceId) {
+module.exports.uploadPayment = function (done, checkResponse, status, email, ip, cardToken, fingerprint, partyId, shopId, invoiceId) {
         let UPLOAD_PAYMENT_DATA = {
             paymentsChanges: [
                 {
@@ -36,7 +36,7 @@ module.exports.uploadPayment = function (done, status, email, ip, cardToken, fin
                     done(err);
                 }
                 should.not.exist(err);
-                res.should.have.status(200);
+                checkResponse(res);
                 setTimeout(() => done(), 10000);
             });
 }

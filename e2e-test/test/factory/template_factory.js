@@ -7,7 +7,7 @@ chai.use(chaiHttp);
 const TEMPLATE_PATH = config.fbManagement.templatePath;
 const FB_MGMNT_URL = config.fbManagement.url;
 
-module.exports.create = function (done, template, id) {
+module.exports.create = function (done, checkResponse, template, id) {
 
     let TEST_TEMPLATE = {
         id: id,
@@ -26,17 +26,8 @@ module.exports.create = function (done, template, id) {
                 done(err);
             }
             should.not.exist(err);
-            res.should.have.status(200);
-            res.should.be.json;
-            res.body.should.be.a("object");
-            res.body.should.have.property("errors");
-            res.body.should.have.property("id");
-            res.body.should.have.property("template");
             should.not.exist(res.body.errors)
-            res.body.id.should.not.be.null;
-            res.body.template.should.not.be.null;
-            res.body.id.should.equal(TEST_TEMPLATE.id);
-            res.body.template.should.equal(TEST_TEMPLATE.template);
+            checkResponse(res);
             done()
         });
 }
