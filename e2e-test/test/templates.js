@@ -17,28 +17,30 @@ describe('Test for simple rule inspection', function () {
     this.timeout(testTimeout);
 
     it('it should create a new template', function (done) {
-        templateService.create(done, (res) => {
-            res.should.have.status(200);
-            res.should.be.json;
-            res.body.should.be.a("object");
-            res.body.should.have.property("errors");
-            res.body.should.have.property("id");
-            res.body.should.have.property("template");
-            res.body.id.should.not.be.null;
-            res.body.template.should.not.be.null;
-            res.body.id.should.equal(TEMPLATE_ID);
-            res.body.template.should.equal(TEMPLATE);
-        }, TEMPLATE, TEMPLATE_ID);
+        templateService.create(done,
+            (res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a("object");
+                res.body.should.have.property("errors");
+                res.body.should.have.property("id");
+                res.body.should.have.property("template");
+                res.body.id.should.not.be.null;
+                res.body.template.should.not.be.null;
+                res.body.id.should.equal(TEMPLATE_ID);
+                res.body.template.should.equal(TEMPLATE);
+            }, TEMPLATE, TEMPLATE_ID);
     });
 
     it('it should create a new reference for template', function (done) {
-        referenceService.create(done, (res) => {
-            res.should.have.status(200);
-            res.should.be.json;
-            res.body.should.be.a("array");
-            res.body.length.should.be.eql(1);
-            res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
-        }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
+        referenceService.create(done,
+            (res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a("array");
+                res.body.length.should.be.eql(1);
+                res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+            }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 
     it('it should inspect that payment have FATAL risk', function (done) {

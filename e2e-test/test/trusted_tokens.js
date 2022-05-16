@@ -20,7 +20,8 @@ describe('Test for check trusted tokens', function () {
     this.timeout(testTimeout);
 
     it('it should create a new template', function (done) {
-        templateService.create(done, (res) => {
+        templateService.create(done,
+            (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.be.a("object");
@@ -37,13 +38,14 @@ describe('Test for check trusted tokens', function () {
     });
 
     it('it should create a new reference for template', function (done) {
-        referenceService.create(done, (res) => {
-            res.should.have.status(200);
-            res.should.be.json;
-            res.body.should.be.a("array");
-            res.body.length.should.be.eql(1);
-            res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
-        }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
+        referenceService.create(done,
+            (res) => {
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a("array");
+                res.body.length.should.be.eql(1);
+                res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+            }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 
     it('it should inspect that payment have default HIGH risk', function (done) {
@@ -65,7 +67,8 @@ describe('Test for check trusted tokens', function () {
     });
 
     it('it should upload payment to history', function (done) {
-        paymentService.uploadPayment(done, (res) => {
+        paymentService.uploadPayment(done,
+            (res) => {
                 res.should.have.status(200);
             },
             "captured",
@@ -79,7 +82,8 @@ describe('Test for check trusted tokens', function () {
     });
 
     it('it should upload payment to history', function (done) {
-        paymentService.uploadPayment(done, (res) => {
+        paymentService.uploadPayment(done,
+            (res) => {
                 res.should.have.status(200);
             },
             "captured",
