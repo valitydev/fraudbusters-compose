@@ -52,9 +52,11 @@ services:
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic result  && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic fraud_payment && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic payment_event && \
+                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic filtered_payment && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic refund_event && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic chargeback_event && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic withdrawal && \
+                                kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic filtered_withdrawal && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1 --topic unknown_initiating_entity && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template && \
                                 kafka-topics --create --if-not-exists --zookeeper zookeeper:2181 --partitions 1 --replication-factor 1  --config cleanup.policy=compact --topic template_reference && \
@@ -109,33 +111,19 @@ services:
        - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
        - ./grafana/datasources:/etc/grafana/provisioning/datasources
 
-   postgres-columbus:
-    image: rbkmoney/postgres-geodata:0eb52256576ec22f89fadc3e7fe505b692e838a3
-    hostname: postgres-columbus
-    container_name: postgres-columbus
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: columbus
-    entrypoint:
-      - /docker-entrypoint.sh
-      - postgres
-    ports:
-      - 5432:5432
-
    columbus:
     image: ghcr.io/valitydev/columbus:sha-13b6ac4
     hostname: columbus
     container_name: columbus
-    mem_limit: 256m
-    mem_reservation: 128M
+    mem_limit: 1024m
+    mem_reservation: 256M
+    entrypoint: "java -Xmx1024m -jar /opt/columbus/columbus.jar"
     environment:
-      spring.datasource.url: "jdbc:postgresql://postgres-columbus:5432/columbus"
-      logging.level.com.rbkmoney.woody: "ERROR"
-    depends_on:
-      - postgres-columbus
+      logging.config: "tmp/logback-test.xml"
     ports:
       - 8990:8022
+    volumes:
+      - ./log-java:/opt/columbus/tmp
 
    wblist:
      image: ghcr.io/valitydev/wb-list-manager:sha-a790a3b
@@ -163,6 +151,7 @@ services:
      container_name: trusted-tokens-manager
      mem_limit: 256m
      mem_reservation: 128M
+     entrypoint: "java -Xmx256m -jar /opt/trusted-tokens-manager/trusted-tokens-manager.jar"
      environment:
        kafka.bootstrap-servers: "broker:9092"
        kafka.client-id: "trusted-tokens-manager"
@@ -170,8 +159,9 @@ services:
        kafka.topics.payment.consume.enabled: "true"
        kafka.topics.withdrawal.consume.enabled: "true"
        kafka.topics.withdrawal.id: "withdrawal"
-       riak.address: riak
-       riak.port: 8087
+       kafka.num-stream-threads: 1
+       riak-config.address: riak
+       riak-config.port: 8087
        management.metrics.export.statsd.enabled: "false"
        logging.config: "tmp/logback-test.xml"
      depends_on:
@@ -183,16 +173,19 @@ services:
        - ./log-java:/opt/trusted-tokens-manager/tmp
 
    fraudbusters-api:
-     image: ghcr.io/valitydev/fraudbusters-api:sha-2c6be00
+     image: ghcr.io/valitydev/fraudbusters-api:sha-41010ca
      hostname: fraudbusters-api
      container_name: fraudbusters-api
-     mem_limit: 256m
+     mem_limit: 350m
      mem_reservation: 128M
+     entrypoint: "java -Xmx350m -jar /opt/fraudbusters-api/fraudbusters-api.jar"
      environment:
        management.security.enabled: 'false'
        logging.config: "tmp/logback-test.xml"
        fraudbusters.service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
+       fraudbusters.service.payment.networkTimeout: 30000
        fraudbusters.service.inspector.url: 'http://fraudbusters:8022/fraud_inspector/v1'
+       fraudbusters.service.inspector.networkTimeout: 30000
        server.port: "8080"
      depends_on:
        - fraudbusters
@@ -202,11 +195,12 @@ services:
        - ./log-java:/opt/fraudbusters-api/tmp
 
    fraudbusters:
-     image: ghcr.io/valitydev/fraudbusters:sha-676a876
+     image: ghcr.io/valitydev/fraudbusters:sha-718957d
      hostname: fraudbusters
      container_name: fraudbusters
      mem_limit: 512m
      mem_reservation: 128M
+     entrypoint: "java -Xmx512m -jar /opt/fraudbusters/fraudbusters.jar"
      environment:
        management.security.enabled: 'false'
        kafka.ssl.enable: 'false'
@@ -223,6 +217,7 @@ services:
        spring.profiles.active: 'full-prod'
        load.isTrusted.enabled: 'false'
        trusted.tokens.url: 'http://trusted-tokens-manager:8022/trusted/tokens'
+       trusted.tokens.timeout: 30000
        dgraph.service.enabled: 'false'
        kafka.topic.group-list: 'group_list'
        kafka.topic.group-reference: 'group_reference'
@@ -262,8 +257,9 @@ services:
      image: ghcr.io/valitydev/fraudbusters-management:sha-cc49e98
      hostname: fb-management
      container_name: fb-management
-     mem_limit: 256m
+     mem_limit: 400m
      mem_reservation: 128M
+     entrypoint: "java -Xmx400m -jar /opt/fraudbusters-management/fraudbusters-management.jar"
      environment:
        kafka.bootstrap-servers: "broker:9092"
        kafka.topic.wblist.command: "wb-list-command"
@@ -276,14 +272,14 @@ services:
        logging.config: "./tmp/logback-test.xml"
        management.metrics.binders.jvm.enabled: 'false'
        service.payment.url: 'http://fraudbusters:8022/fraud_payment/v1/'
-       service.payment.networkTimeout: 15000
+       service.payment.networkTimeout: 60000
        service.historical.url: 'http://fraudbusters:8022/historical_data/v1/'
-       service.historical.networkTimeout: 30000
+       service.historical.networkTimeout: 60000
        service.notification.url: 'http://fb-notificator:8022/notification/v1'
        service.notification-channel.url: 'http://fb-notificator:8022/notification-channel/v1'
        service.notification-template.url: 'http://fb-notificator:8022/notification-template/v1'
        spring.profiles.active: 'debug'
-       keycloak.enabled: "true"
+       keycloak.enabled: "false"
        keycloak.realm: "fraudbusters-realm"
        keycloak.resource: "fraudbusters-app"
        keycloak.auth-server-url: "http://keycloak:8080/auth"
@@ -387,7 +383,7 @@ services:
      build: ./e2e-test
      image: e2e-test
      container_name: e2e-test
-     command: dockerize -wait tcp://fb-management:8080 -wait tcp://fraudbusters:8022 -wait tcp://fraudbusters-api:8080 -timeout 10000s -wait-retry-interval 10s bash -c "npm test"
+     command: dockerize -wait tcp://fb-management:8080 -wait tcp://fraudbusters:8022 -wait tcp://fraudbusters-api:8080 -timeout 20000s -wait-retry-interval 20s bash -c "npm test"
      environment:
        FB_MNGMT_URL: http://fb-management:8080
        FB_API_URL: http://fraudbusters-api:8080

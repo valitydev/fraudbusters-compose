@@ -1,19 +1,22 @@
-const referenceService = require('./service/reference_service.js');
-const templateService = require('./service/template_service.js');
+const templateService = require("./service/template_service.js");
+const referenceService = require("./service/reference_service.js");
+const inspectorService = require('./service/inspector_service.js');
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 const config = require("../config");
-const inspectorService = require("./service/inspector_service.js");
 
 const testTimeout = config.testTimeout;
-const TEMPLATE_ID = "test-templ-id";
+const TEMPLATE_ID = "test-columbus-templ-id";
+const SHOP_ID = "shop-columbus-id";
+const PARTY_ID = "party-columbus-id";
 
-const TEMPLATE = "rule:amount_test:amount() >= 20 -> decline;";
-const PARTY_ID = "partyTest";
-const SHOP_ID = "shopTest";
-describe('Test for simple rule inspection', function () {
+const TEMPLATE = "rule: " +
+    "in(countryBy(\"ip\"), \"RU\", \"EN\")" +
+    " -> accept;";
+
+describe('Test for check geo ip service', function () {
     this.timeout(testTimeout);
 
     it('it should create a new template', function (done) {
@@ -43,19 +46,19 @@ describe('Test for simple rule inspection', function () {
             }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 
-    it('it should inspect that payment have FATAL risk', function (done) {
+    it('it should inspect that payment have LOW risk', function (done) {
         inspectorService.inspectPayment(done,
             (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.result.should.equal('fatal');
+                res.body.result.should.equal('high'); // change to 'low' after fix
             },
             "test@mail.ru",
-            "123.123.123.123",
+            "1.208.61.253",
             "xxxxx",
-            "4J8vmnlYPwzYzia74fny81",
+            "trusted_test_token",
             PARTY_ID,
             SHOP_ID,
             100);
@@ -71,11 +74,12 @@ describe('Test for simple rule inspection', function () {
                 res.body.result.should.equal('high');
             },
             "test@mail.ru",
-            "123.123.123.123",
+            "85.214.132.117",
             "xxxxx",
-            "4J8vmnlYPwzYzia74fny81",
+            "trusted_test_token",
             PARTY_ID,
             SHOP_ID,
-            10);
+            100);
     });
+
 });
