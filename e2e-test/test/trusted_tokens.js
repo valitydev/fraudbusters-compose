@@ -2,8 +2,9 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 const config = require("../config");
-const templateFactory = require("./factory/template_factory.js");
-const referenceFactory = require("./factory/reference_factory.js");
+
+const templateService = require("./service/template_service.js");
+const referenceService = require("./service/reference_service.js");
 const inspectorService = require("./service/inspector_service.js");
 const paymentService = require("./service/payment_service.js");
 
@@ -19,7 +20,7 @@ describe('Test for check trusted tokens', function () {
     this.timeout(testTimeout);
 
     it('it should create a new template', function (done) {
-        templateFactory.create(done, (res) => {
+        templateService.create(done, (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
                 res.body.should.be.a("object");
@@ -36,7 +37,7 @@ describe('Test for check trusted tokens', function () {
     });
 
     it('it should create a new reference for template', function (done) {
-        referenceFactory.create(done, (res) => {
+        referenceService.create(done, (res) => {
             res.should.have.status(200);
             res.should.be.json;
             res.body.should.be.a("array");
