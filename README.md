@@ -14,15 +14,22 @@ When analyzing the results, it enriches the data from the storage location servi
 
 ### Run
 
-1. ```docker-compose up -d```
+1. ```docker-compose up -d``` - default configuration
 
-2. [Simple use case](docs/simple_use_case_1.md)
+1.2. ```docker-compose -f docker-compose.yml -f docker-compose-arm.yml up -d``` - configuration for ARM silicon
+
+2.[Simple use case](docs/simple_use_case_1.md)
 
 ### Service live at:
 
  - Grafana (http://localhost:3000) - admin/admin
  - Swagger for fraudbusters management (http://localhost:8080/fb-management/v1/swagger-ui.html)
  - Thrift proxy inspector proto fraudbusters (http://localhost:8022/...)
+ - Fraudbusters UI (http://localhost:8989)
+
+### Stop
+
+1. ```docker-compose down```
 
 ### License
 [Apache 2.0 License.](/LICENSE)

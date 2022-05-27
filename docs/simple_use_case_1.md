@@ -41,12 +41,12 @@
 ![alt text](../images/add-role.png)
 &nbsp;
 
-11. Add to /etc/hosts ```127.0.0.1 keyclock```
-12. Go to user interface and login as your user
+11. Add to /etc/hosts ```127.0.0.1 keycloak```
+12. Go to user interface ```localhost:8989``` and login as your user
 13. Templates -> Create template name -
     ```test```
     template -
-    ```rule:amount_test:amount >=1 -> decline;```
+    ```rule:test:amount() > 100 -> decline;```
 
     &nbsp;
     ![alt text](../images/created-template.png)

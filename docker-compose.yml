@@ -3,7 +3,6 @@ version: '2'
 services:
    zookeeper:
      image: confluentinc/cp-zookeeper:5.0.1
-#     image: watershine/cp-zookeeper:6.1.0-arm64
      hostname: zookeeper
      container_name: zookeeper
      environment:
@@ -15,7 +14,6 @@ services:
 
    broker:
      image: confluentinc/cp-enterprise-kafka:5.0.1
-#     image: watershine/cp-enterprise-kafka:6.1.0-arm64
      hostname: broker
      container_name: broker
      depends_on:
@@ -83,7 +81,6 @@ services:
 
    clickhouse:
      image: yandex/clickhouse-server:20.6.7.4
-#     image: lunalabsltd/clickhouse-server:20.6.7.4-arm
      hostname: clickhouse
      container_name: clickhouse
      environment:
@@ -352,7 +349,7 @@ services:
        - ./log-java:/opt/fraudbusters-warehouse/tmp
 
    fraudbusters-ui:
-     image: ghcr.io/valitydev/fraudbusters-ui:sha-5661f6f
+     image: ghcr.io/valitydev/fraudbusters-ui:sha-831538a
      hostname: fraudbusters-ui
      container_name: fraudbusters-ui
      environment:
