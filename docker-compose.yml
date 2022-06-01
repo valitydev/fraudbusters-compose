@@ -143,7 +143,7 @@ services:
        - 8991:8022
 
    trusted-tokens-manager:
-     image: ghcr.io/valitydev/trusted-tokens-manager:sha-efd3f86
+     image: ghcr.io/valitydev/trusted-tokens-manager:sha-9ad5cee
      hostname: trusted-tokens-manager
      container_name: trusted-tokens-manager
      mem_limit: 256m

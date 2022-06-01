@@ -103,7 +103,7 @@ describe('Test for check trusted tokens', function () {
                 res.should.be.json;
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
-                res.body.result.should.equal('high'); // change to 'low' after fix
+                res.body.result.should.equal('low');
             },
             "test@mail.ru",
             "123.123.123.123",
