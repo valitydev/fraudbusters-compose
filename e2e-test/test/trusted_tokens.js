@@ -75,7 +75,7 @@ describe('Test for check trusted tokens', function () {
     it('it should upload payment to history', function (done) {
         paymentService.uploadPayment(done,
             (res) => {
-                res.should.have.status(200);
+                res.should.have.status(201);
             },
             "captured",
             "test@mail.ru",
@@ -90,7 +90,7 @@ describe('Test for check trusted tokens', function () {
     it('it should upload payment to history', function (done) {
         paymentService.uploadPayment(done,
             (res) => {
-                res.should.have.status(200);
+                res.should.have.status(201);
             },
             "captured",
             "test@mail.ru",

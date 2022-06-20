@@ -9,10 +9,10 @@ const inspectorService = require("./service/inspector_service.js");
 
 const testTimeout = config.testTimeout;
 const TEMPLATE_ID = "test-templ-id";
-
 const TEMPLATE = "rule:amount_test:amount() >= 20 -> decline;";
 const PARTY_ID = "partyTest";
 const SHOP_ID = "shopTest";
+
 describe('Test for simple rule inspection', function () {
     this.timeout(testTimeout);
 

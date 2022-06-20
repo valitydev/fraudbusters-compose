@@ -170,7 +170,7 @@ services:
        - ./log-java:/opt/trusted-tokens-manager/tmp
 
    fraudbusters-api:
-     image: ghcr.io/valitydev/fraudbusters-api:sha-41010ca
+     image: ghcr.io/valitydev/fraudbusters-api:sha-e37d0d7
      hostname: fraudbusters-api
      container_name: fraudbusters-api
      mem_limit: 350m
