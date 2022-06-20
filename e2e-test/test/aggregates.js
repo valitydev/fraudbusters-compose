@@ -29,7 +29,10 @@ function generateIp(prefix) {
 
 function generateCardToken() {
     return CARD_TOKEN + Math.floor(Math.random() * 999);
+}
 
+function generateEmail(prefix) {
+    return prefix + Math.floor(Math.random() * 999);
 }
 
 function generateFingerprint() {
@@ -61,15 +64,17 @@ describe('Test for check aggregates', function () {
             (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                res.body.should.be.a("array");
-                res.body.length.should.be.eql(1);
-                res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+                res.body.should.be.a("object");
+                res.body.should.have.property("result");
+                res.body.result.length.should.be.eql(1);
+                res.body.result.should.does.include(PARTY_ID + "_" + SHOP_ID);
             }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 
     let ipUniq = generateIp("192.1.1.");
     let cardToken = generateCardToken();
     let fingerprint = generateFingerprint();
+    let email = generateEmail("test_unique_1");
 
     it('it should inspect that payment have HIGH risk for UNIQUE', function (done) {
         inspectorService.inspectPayment(done,
@@ -80,7 +85,7 @@ describe('Test for check aggregates', function () {
                 res.body.should.have.property("result");
                 res.body.result.should.equal('high');
             },
-            EMAIL, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
+            email, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
     it('it should upload payment to history', function (done) {
@@ -88,10 +93,10 @@ describe('Test for check aggregates', function () {
             (res) => {
                 res.should.have.status(200);
             },
-            status, EMAIL, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
+            status, email, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
 
-    const emailUnique = 'test_unique_2@vality.dev';
+    const emailUnique = generateEmail('test_unique_2');
 
     it('it should inspect that payment have FATAL risk for UNIQUE', function (done) {
         inspectorService.inspectPayment(done,
@@ -112,7 +117,7 @@ describe('Test for check aggregates', function () {
     });
 
     const ipCount = generateIp("192.1.2.");
-    const emailCount = "test_count@vality.dev";
+    const emailCount = generateEmail('test_count');
 
     it('it should inspect that payment have FATAL risk for COUNT', function (done) {
         inspectorService.inspectPayment(done,
@@ -125,7 +130,7 @@ describe('Test for check aggregates', function () {
             }, emailCount, ipCount, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
-    const emailSum = "test_sum@vality.dev";
+    const emailSum = generateEmail('test_sum');
     let cardTokenSum = generateCardToken();
 
     it('it should inspect that payment have FATAL risk for SUM', function (done) {

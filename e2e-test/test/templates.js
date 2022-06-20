@@ -37,9 +37,9 @@ describe('Test for simple rule inspection', function () {
             (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                res.body.should.be.a("array");
-                res.body.length.should.be.eql(1);
-                res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+                res.body.should.be.a("object");
+                res.body.result.length.should.be.eql(1);
+                res.body.result.should.does.include(PARTY_ID + "_" + SHOP_ID);
             }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
 

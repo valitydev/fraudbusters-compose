@@ -13,8 +13,12 @@ const testTimeout = config.testTimeout;
 const TEMPLATE_ID = "test-trustes-templ-id";
 const SHOP_ID = "shop-trusted-id";
 const PARTY_ID = "party-trusted-id";
-const CARD_TOKEN = "trusted_test_token";
+const CARD_TOKEN = "trusted_test_token_";
 const TEMPLATE = "rule: isTrusted(paymentsConditions(condition(\"RUB\" ,1 ,1 ,1 ))) -> accept;";
+
+function generateCardToken() {
+    return CARD_TOKEN + Math.floor(Math.random() * 999);
+}
 
 describe('Test for check trusted tokens', function () {
     this.timeout(testTimeout);
@@ -42,11 +46,13 @@ describe('Test for check trusted tokens', function () {
             (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                res.body.should.be.a("array");
-                res.body.length.should.be.eql(1);
-                res.body.should.does.include(PARTY_ID + "_" + SHOP_ID);
+                res.body.should.be.a("object");
+                res.body.result.length.should.be.eql(1);
+                res.body.result.should.does.include(PARTY_ID + "_" + SHOP_ID);
             }, PARTY_ID, SHOP_ID, TEMPLATE_ID);
     });
+
+    let cardToken = generateCardToken();
 
     it('it should inspect that payment have default HIGH risk', function (done) {
         inspectorService.inspectPayment(done,
@@ -60,7 +66,7 @@ describe('Test for check trusted tokens', function () {
             "test@mail.ru",
             "123.123.123.123",
             "xxxxx",
-            CARD_TOKEN,
+            cardToken,
             PARTY_ID,
             SHOP_ID,
             100);
@@ -74,7 +80,7 @@ describe('Test for check trusted tokens', function () {
             "captured",
             "test@mail.ru",
             "123.123.123.123",
-            CARD_TOKEN,
+            cardToken,
             "xxxxx",
             PARTY_ID,
             SHOP_ID,
@@ -89,7 +95,7 @@ describe('Test for check trusted tokens', function () {
             "captured",
             "test@mail.ru",
             "123.123.123.123",
-            CARD_TOKEN,
+            cardToken,
             "xxxxx",
             PARTY_ID,
             SHOP_ID,
@@ -108,7 +114,7 @@ describe('Test for check trusted tokens', function () {
             "test@mail.ru",
             "123.123.123.123",
             "xxxxx",
-            CARD_TOKEN,
+            cardToken,
             PARTY_ID,
             SHOP_ID,
             1000);
