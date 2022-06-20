@@ -1,18 +1,18 @@
 const chai = require("chai");
 const config = require("../../config");
 const chaiHttp = require("chai-http");
-const contextFactory = require("../factory/context_factory.js");
+const paymentFactory = require("../factory/payment_factory.js");
 const should = chai.should();
 chai.use(chaiHttp);
 
 const FB_API_URL = config.fbApi.url;
-const INSPECT_PATH = config.fb.inspectPath;
+const INSPECT_PATH = config.fbApi.inspectPath;
 
 module.exports.inspectPayment =
     function (done, checkResponse, email, ip, fingerprint, cardToken, partyId, shopId, amount, currency) {
         let TEST_INSPECTOR_PAYMENT_REQ_HIGH = {
-            context: contextFactory.create(
-                "invoice_id",
+            payment: paymentFactory.create(
+                "payment_id",
                 ip,
                 email,
                 fingerprint,

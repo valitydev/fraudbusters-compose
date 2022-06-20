@@ -86,7 +86,7 @@ describe('Test for check aggregates', function () {
     it('it should upload payment to history', function (done) {
         paymentService.uploadPayment(done,
             (res) => {
-                res.should.have.status(200);
+                res.should.have.status(201);
             },
             status, EMAIL, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
@@ -106,7 +106,7 @@ describe('Test for check aggregates', function () {
 
     it('it should upload payment to history', function (done) {
         paymentService.uploadPayment(done, (res) => {
-                res.should.have.status(200);
+                res.should.have.status(201);
             },
             status, emailUnique, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
