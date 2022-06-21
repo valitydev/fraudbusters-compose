@@ -103,20 +103,22 @@ describe('Test for check trusted tokens', function () {
     });
 
     it('it should inspect that payment have LOW risk', function (done) {
-        inspectorService.inspectPayment(done,
-            (res) => {
-                res.should.have.status(200);
-                res.should.be.json;
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.result.should.equal('low');
-            },
-            "test@mail.ru",
-            "123.123.123.123",
-            "xxxxx",
-            cardToken,
-            PARTY_ID,
-            SHOP_ID,
-            1000);
+        setTimeout(() => inspectorService.inspectPayment(done,
+                (res) => {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("result");
+                    res.body.result.should.equal('low');
+                },
+                "test@mail.ru",
+                "123.123.123.123",
+                "xxxxx",
+                cardToken,
+                PARTY_ID,
+                SHOP_ID,
+                1000),
+            5000);
+
     });
 });

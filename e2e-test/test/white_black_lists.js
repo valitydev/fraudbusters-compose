@@ -23,9 +23,6 @@ const TEMPLATE = "rule: inWhiteList(\"email\") -> accept;";
 const TEMPLATE_2 = "rule: inGreyList(\"card_token\") -> accept;";
 const TEMPLATE_3 = "rule: inBlackList(\"card_token\") -> decline;"
 const CARD_TOKEN = "wb_test_token_";
-const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-}
 
 function generateCardToken() {
     return CARD_TOKEN + Math.floor(Math.random() * 999);
@@ -187,22 +184,23 @@ describe('Test for check white, black and grey tokens', function () {
     });
 
     it('it should inspect that payment have LOW risk', function (done) {
-        sleep(10000);
-        inspectorService.inspectPayment(done,
-            (res) => {
-                res.should.have.status(200);
-                res.should.be.json;
-                res.body.should.be.a("object");
-                res.body.should.have.property("result");
-                res.body.result.should.equal('low');
-            },
-            EMAIL,
-            "123.123.123.123",
-            "xxxxx",
-            cardToken,
-            PARTY_ID,
-            SHOP_ID,
-            1000);
+        setTimeout(() => inspectorService.inspectPayment(done,
+                (res) => {
+                    res.should.have.status(200);
+                    res.should.be.json;
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("result");
+                    res.body.result.should.equal('low');
+                },
+                EMAIL,
+                "123.123.123.123",
+                "xxxxx",
+                cardToken,
+                PARTY_ID,
+                SHOP_ID,
+                1000),
+            5000);
+
     });
 
     it('it should create a new list row black', function (done) {
@@ -222,8 +220,7 @@ describe('Test for check white, black and grey tokens', function () {
     });
 
     it('it should inspect that payment have FATAL risk', function (done) {
-        sleep(10000);
-        inspectorService.inspectPayment(done,
+        setTimeout(() => inspectorService.inspectPayment(done,
             (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
@@ -231,13 +228,13 @@ describe('Test for check white, black and grey tokens', function () {
                 res.body.should.have.property("result");
                 res.body.result.should.equal('fatal');
             },
-            EMAIL,
+            EMAIL + 'x',
             "123.123.123.123",
             "xxxxx",
             cardToken,
             PARTY_ID,
             SHOP_ID,
-            1000);
+            1000), 5000);
     });
 
 });

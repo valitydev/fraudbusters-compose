@@ -347,21 +347,21 @@ services:
 #       - clickhouse
 #     volumes:
 #       - ./log-java:/opt/fraudbusters-warehouse/tmp
-
-   fraudbusters-ui:
-     image: ghcr.io/valitydev/fraudbusters-ui:sha-9161e0e
-     hostname: fraudbusters-ui
-     container_name: fraudbusters-ui
-     environment:
-       platform: linux/amd64
-     ports:
-       - 8989:8080
-     depends_on:
-       - fb-management
-     volumes:
-       - ./fraudbusters-ui/nginx.conf:/etc/nginx/vhosts.d/fraudbusters-ui.conf
-       - ./fraudbusters-ui/appConfig.json:/usr/share/nginx/html/assets/appConfig.json
-       - ./fraudbusters-ui/authConfig.json:/usr/share/nginx/html/assets/authConfig.json
+#
+#   fraudbusters-ui:
+#     image: ghcr.io/valitydev/fraudbusters-ui:sha-9161e0e
+#     hostname: fraudbusters-ui
+#     container_name: fraudbusters-ui
+#     environment:
+#       platform: linux/amd64
+#     ports:
+#       - 8989:8080
+#     depends_on:
+#       - fb-management
+#     volumes:
+#       - ./fraudbusters-ui/nginx.conf:/etc/nginx/vhosts.d/fraudbusters-ui.conf
+#       - ./fraudbusters-ui/appConfig.json:/usr/share/nginx/html/assets/appConfig.json
+#       - ./fraudbusters-ui/authConfig.json:/usr/share/nginx/html/assets/authConfig.json
 
 #   keycloak:
 #      image: docker.io/wizzn/keycloak:14

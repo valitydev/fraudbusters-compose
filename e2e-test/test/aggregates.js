@@ -15,7 +15,6 @@ const SHOP_ID = "shop-aggr-id";
 const PARTY_ID = "party-aggr-id";
 const CARD_TOKEN = "aggr_test_token";
 const AGGR_FINGERPRINT = "aggr_fingerprint";
-const EMAIL = "test_unique@vality.dev";
 
 const TEMPLATE = "rule: unique(\"ip\", \"email\", 30, days, \"party_id\", \"shop_id\") > 1 " +
     " OR count(\"card_token\", 30, days, \"party_id\", \"shop_id\") > 2 " +
