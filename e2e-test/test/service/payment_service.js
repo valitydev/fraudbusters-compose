@@ -22,7 +22,7 @@ module.exports.uploadPayment = function (done, checkResponse, status, email, ip,
                         shopId
                     ),
                     paymentStatus: status,
-                    eventTime: "2019-08-24T14:15:22Z"
+                    eventTime: (new Date()).toJSON(),
                 }
             ]
         };

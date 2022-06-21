@@ -48,7 +48,7 @@ module.exports.create =
             },
             payerType: "payment_resource",
             tokenMobileProvider: null,
-            createdAt: Date.now() / 1000,
+            createdAt: Math.floor(Date.now() / 1000),
             description: "Test product"
         };
     }

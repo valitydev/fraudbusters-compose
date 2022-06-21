@@ -7,12 +7,13 @@ chai.use(chaiHttp);
 const LISTS_PATH = config.fbManagement.listsPath;
 const FB_MGMNT_URL = config.fbManagement.url;
 
-module.exports.create = function (done, checkResponse, listType, listName, partyId, shopId, value) {
+module.exports.create = function (done, checkResponse, listType, listName, partyId, shopId, value, countInfo) {
 
     let LIST_TEMPLATE = {
         listType: listType,
         records: [
             {
+                countInfo: countInfo,
                 listRecord: {
                     listName: listName,
                     partyId: partyId,
