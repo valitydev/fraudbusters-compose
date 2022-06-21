@@ -4,6 +4,7 @@ module.exports = {
     templatePath: process.env.FB_M_TEMPLATE_PATH || '/fb-management/v1/payments-templates',
     referencePath: process.env.FB_M_REFEREBCE_PATH || '/fb-management/v1/payments-references',
     groupPath: process.env.FB_M_GROUP_PATH || '/fb-management/v1/payments-groups',
+    listsPath: process.env.FB_M_GROUP_PATH || '/fb-management/v1/payments-lists',
   },
   fbApi: {
     url: process.env.FB_API_URL || "http://fraudbusters-api:8080",
