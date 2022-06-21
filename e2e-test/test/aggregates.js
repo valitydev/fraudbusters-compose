@@ -73,7 +73,7 @@ describe('Test for check aggregates', function () {
     let ipUniq = generateIp("192.1.1.");
     let cardToken = generateCardToken();
     let fingerprint = generateFingerprint();
-    let email = generateEmail("test_unique_1");
+    let uniqueEmail = generateEmail("test_unique_1");
 
     it('it should inspect that payment have HIGH risk for UNIQUE', function (done) {
         inspectorService.inspectPayment(done,
@@ -84,7 +84,7 @@ describe('Test for check aggregates', function () {
                 res.body.should.have.property("result");
                 res.body.result.should.equal('high');
             },
-            email, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
+            uniqueEmail, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
     it('it should upload payment to history', function (done) {
@@ -92,10 +92,10 @@ describe('Test for check aggregates', function () {
             (res) => {
                 res.should.have.status(201);
             },
-            status, email, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
+            status, uniqueEmail, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
 
-    const emailUnique = generateEmail('test_unique_2');
+    const anotherUniqueEmail = generateEmail('test_unique_2');
 
     it('it should inspect that payment have FATAL risk for UNIQUE', function (done) {
         inspectorService.inspectPayment(done,
@@ -105,14 +105,14 @@ describe('Test for check aggregates', function () {
                 res.body.should.be.a("object");
                 res.body.should.have.property("result");
                 res.body.result.should.equal('fatal');
-            }, emailUnique, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
+            }, anotherUniqueEmail, ipUniq, fingerprint, cardToken, PARTY_ID, SHOP_ID);
     });
 
     it('it should upload payment to history', function (done) {
         paymentService.uploadPayment(done, (res) => {
                 res.should.have.status(201);
             },
-            status, emailUnique, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
+            status, anotherUniqueEmail, ipUniq, cardToken, fingerprint, PARTY_ID, SHOP_ID);
     });
 
     const ipCount = generateIp("192.1.2.");
