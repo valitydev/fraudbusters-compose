@@ -192,7 +192,7 @@ services:
        - ./log-java:/opt/fraudbusters-api/tmp
 
    fraudbusters:
-     image: ghcr.io/valitydev/fraudbusters:sha-718957d
+     image: ghcr.io/valitydev/fraudbusters:sha-8928c16
      hostname: fraudbusters
      container_name: fraudbusters
      mem_limit: 512m
@@ -201,7 +201,7 @@ services:
      environment:
        management.security.enabled: 'false'
        kafka.ssl.enable: 'false'
-       kafka.bootstrap.servers: "broker:9092"
+       spring.kafka.bootstrap-servers: "broker:9092"
        geo.ip.service.url: "http://columbus:8022/repo"
        wb.list.service.url: "http://wblist:8022/wb_list/v1"
        clickhouse.db.url: "jdbc:clickhouse://clickhouse:8123/default"
@@ -251,7 +251,7 @@ services:
      restart: unless-stopped
 
    fb-management:
-     image: ghcr.io/valitydev/fraudbusters-management:sha-1c77dae
+     image: ghcr.io/valitydev/fraudbusters-management:sha-c798263
      hostname: fb-management
      container_name: fb-management
      mem_limit: 400m
@@ -349,7 +349,7 @@ services:
        - ./log-java:/opt/fraudbusters-warehouse/tmp
 
    fraudbusters-ui:
-     image: ghcr.io/valitydev/fraudbusters-ui:sha-9161e0e
+     image: ghcr.io/valitydev/fraudbusters-ui:sha-d2b0603
      hostname: fraudbusters-ui
      container_name: fraudbusters-ui
      environment:
