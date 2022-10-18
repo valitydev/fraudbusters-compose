@@ -10,9 +10,10 @@ const INSPECT_PATH = config.fbApi.inspectPath;
 
 module.exports.inspectPayment =
     function (done, checkResponse, email, ip, fingerprint, cardToken, partyId, shopId, amount, currency) {
+        let id = Math.floor(Math.random() * 999);
         let TEST_INSPECTOR_PAYMENT_REQ_HIGH = {
             payment: paymentFactory.create(
-                "payment_id",
+                id,
                 ip,
                 email,
                 fingerprint,
