@@ -1,12 +1,12 @@
 const CARD_TOKEN = "aggr_test_token";
 const IP = "192.1.1.1";
 const EMAIL = "test_unique@vality.dev";
-const PAYMENT_ID = "payment_id";
+const paymentId = Math.floor(Math.random() * 999);
 
 module.exports.create =
     function (id, ip, email, fingerprint, cardToken, partyId, shopId, amount, currency) {
         return {
-            id: id || PAYMENT_ID,
+            id: id || paymentId,
             customer: {
                 name: "Test Test",
                 device: {

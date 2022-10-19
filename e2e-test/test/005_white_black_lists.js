@@ -1,16 +1,13 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const should = chai.should();
 chai.use(chaiHttp);
 const config = require("../config");
 const templateService = require("./service/template_service.js");
 const inspectorService = require("./service/inspector_service.js");
 const listsService = require("./service/wb_list_service.js");
 const paymentService = require("./service/payment_service.js");
-
-const FB_MGMNT_URL = config.fbManagement.url;
-
-const GROUP_PATH = config.fbManagement.groupPath;
+const listGroupService = require("./service/list_group_service.js");
+const referenceService = require('./service/reference_service.js');
 
 const testTimeout = config.testTimeout;
 const IN_WHITE_lIST_TEMPLATE_ID = "white-list-template-id";
@@ -24,6 +21,8 @@ const IN_WHITE_LIST_TEMPLATE = "rule: inWhiteList(\"email\") -> accept;";
 const IN_GREY_LIST_TEMPLATE = "rule: inGreyList(\"card_token\") -> accept;";
 const IN_BLACK_LIST_TEMPLATE = "rule: inBlackList(\"card_token\") -> decline;"
 const CARD_TOKEN = "wb_test_token_";
+const IP = "123.123.123.123";
+const FINGERPRINT = "xxxxx";
 
 function generateCardToken() {
     return CARD_TOKEN + Math.floor(Math.random() * 999);
@@ -93,63 +92,27 @@ describe('Test for check white, black and grey tokens', function () {
     });
 
     it('it should create a new group for list templates', function (done) {
-        let TEST_GROUP = {
-            groupId: GROUP_ID,
-            modifiedByUser: "test-user",
-            priorityTemplates: [
-                {
-                    id: IN_WHITE_lIST_TEMPLATE_ID,
-                    lastUpdateTime: "2019-08-24T14:15:22Z",
-                    priority: 0
-                },
-                {
-                    id: IN_GREY_LIST_TEMPLATE_ID,
-                    lastUpdateTime: "2019-08-24T14:15:22Z",
-                    priority: 2
-                },
-                {
-                    id: IN_BLACK_LIST_TEMPLATE_ID,
-                    lastUpdateTime: "2019-08-24T14:15:22Z",
-                    priority: 1
-                }]
-        };
 
-        chai.request(FB_MGMNT_URL)
-            .post(GROUP_PATH)
-            .send(TEST_GROUP)
-            .end(function (err) {
-                if (err) {
-                    console.log(err.text);
-                    done(err);
-                }
+        listGroupService.create(done,
+            GROUP_ID,
+            IN_WHITE_lIST_TEMPLATE_ID,
+            IN_GREY_LIST_TEMPLATE_ID,
+            IN_BLACK_LIST_TEMPLATE_ID);
 
-                done();
-            });
     });
 
     it('it should create a new reference for group', function (done) {
-        let TEST_GROUP = [{
-            groupId: GROUP_ID,
-            id: GROUP_REFERENCE_ID,
-            lastUpdateDate: "2022-04-15T10:30:30",
-            modifiedByUser: "test-user",
-            shopId: SHOP_ID,
-            partyId: PARTY_ID
-        }];
 
-        chai.request(FB_MGMNT_URL)
-            .post(GROUP_PATH + '/' + GROUP_ID + '/references')
-            .send(TEST_GROUP)
-            .end(function (err, res) {
-                if (err) {
-                    console.log(err.text);
-                    done(err);
-                }
-                should.not.exist(err);
+        referenceService.createGroup(done,
+            (res) => {
                 res.should.have.status(200);
                 res.should.be.json;
-                done()
-            });
+            },
+            GROUP_ID,
+            GROUP_REFERENCE_ID,
+            SHOP_ID,
+            PARTY_ID);
+
     });
 
     let cardToken = generateCardToken();
@@ -164,8 +127,8 @@ describe('Test for check white, black and grey tokens', function () {
                 res.body.result.should.equal('high');
             },
             EMAIL,
-            "123.123.123.123",
-            "xxxxx",
+            IP,
+            FINGERPRINT,
             cardToken,
             PARTY_ID,
             SHOP_ID,
@@ -198,8 +161,8 @@ describe('Test for check white, black and grey tokens', function () {
                     res.body.result.should.equal('low');
                 },
                 EMAIL,
-                "123.123.123.123",
-                "xxxxx",
+                IP,
+                FINGERPRINT,
                 cardToken,
                 PARTY_ID,
                 SHOP_ID,
@@ -224,7 +187,7 @@ describe('Test for check white, black and grey tokens', function () {
             SHOP_ID,
             cardToken,
             {
-                "count": 0,
+                "count": 1,
                 "endCountTime": getNowDatePlusOneDay().toJSON(),
                 "startCountTime": (new Date()).toJSON()
             });
@@ -240,8 +203,8 @@ describe('Test for check white, black and grey tokens', function () {
                 res.body.result.should.equal('low');
             },
             EMAIL + 'x',
-            "123.123.123.123",
-            "xxxxx",
+            IP,
+            FINGERPRINT,
             cardToken,
             PARTY_ID,
             SHOP_ID,
@@ -255,9 +218,9 @@ describe('Test for check white, black and grey tokens', function () {
             },
             "captured",
             EMAIL + 'x',
-            "123.123.123.123",
+            IP,
             cardToken,
-            "xxxxx",
+            FINGERPRINT,
             PARTY_ID,
             SHOP_ID,
             "invoice_id_1.1");
@@ -289,8 +252,8 @@ describe('Test for check white, black and grey tokens', function () {
                 res.body.result.should.equal('fatal');
             },
             EMAIL + 'x',
-            "123.123.123.123",
-            "xxxxx",
+            IP,
+            FINGERPRINT,
             cardToken,
             PARTY_ID,
             SHOP_ID,
